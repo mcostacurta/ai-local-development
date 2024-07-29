@@ -1,0 +1,35 @@
+### Listing Models
+GET http://localhost:11434/api/tags
+
+### Model info
+POST http://localhost:11434/api/show
+Content-Type: application/json
+
+{
+  "model": "llama3.1"
+}
+
+### Pull a New Model
+POST http://localhost:11434/api/pull
+Content-Type: application/json
+
+{
+  "model": "llama3.1"
+}
+
+
+### Load a new Model
+POST http://localhost:11434/api/generate
+Content-Type: application/json
+
+{
+  "model": "llama3.1"
+}
+
+### DElete model
+DELETE http://localhost:11434/api/delete
+Content-Type: application/json
+
+{
+  "model": "mistral"
+}
