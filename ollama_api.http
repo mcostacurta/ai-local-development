@@ -6,7 +6,7 @@ POST http://localhost:11434/api/show
 Content-Type: application/json
 
 {
-  "model": "llama3.1"
+  "model": "moondream"
 }
 
 ### Pull a New Model
@@ -14,7 +14,7 @@ POST http://localhost:11434/api/pull
 Content-Type: application/json
 
 {
-  "model": "llama3.1"
+  "model": "llama3:latest"
 }
 
 
@@ -23,7 +23,7 @@ POST http://localhost:11434/api/generate
 Content-Type: application/json
 
 {
-  "model": "llama3.1"
+  "model": "llama3:latest"
 }
 
 ### DElete model
