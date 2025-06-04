@@ -5,15 +5,20 @@ VOLUME /root/.ollama
 RUN apt-get update --fix-missing && apt-get install -y --fix-missing curl
 
 # smallest at the moment
-ARG OLLAMA_MODEL="gemma3:1b" 
+ARG OLLAMA_TEXT_MODEL="gemma3" 
+ARG OLLAMA_EMBEDDING_MODEL="mxbai-embed-large" 
 
-ENV OLLAMA_MODEL_NAME=${OLLAMA_MODEL}
+
+ENV OLLAMA_TEXT_MODEL_NAME=${OLLAMA_TEXT_MODEL}
+ENV OLLAMA_EMBEDDING_MODEL_NAME=${OLLAMA_EMBEDDING_MODEL}
+
 
 # run server to pull the selected model
 RUN ollama serve & \
     OLLAMA_PID=$! && \
     sleep 5 && \
-    ollama pull ${OLLAMA_MODEL_NAME} && \
+    ollama pull ${OLLAMA_TEXT_MODEL_NAME} && \
+    ollama pull ${OLLAMA_EMBEDDING_MODEL_NAME} && \
     kill $OLLAMA_PID
 
 EXPOSE 11434

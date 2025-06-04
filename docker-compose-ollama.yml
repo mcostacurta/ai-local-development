@@ -7,7 +7,8 @@ services:
       context: .
       dockerfile: Dockerfile-ollama
       args:
-        - OLLAMA_MODEL=gemma3:1b
+        - OLLAMA_TEXT_MODEL=gemma3
+        - OLLAMA_EMBEDDING_MODEL=mxbai-embed-large
     container_name: ollama
     restart: unless-stopped
     ports:
@@ -36,23 +37,32 @@ services:
     # Comment the line below if you have NVIDIA GPU
     runtime: runc
 
-  # ChromaDB - Vector Database
-  chromadb:
-    image: chromadb/chroma
-    container_name: chromadb
+  # Qdrant - Vector Database
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "6333:6333"  # REST API
+      - "6334:6334"  # gRPC API
     volumes:
-      - chromadb_data:/app/chroma_data
+      - qdrant_data:/qdrant/storage
     environment:
-      - CHROMA_SERVER_HOST=0.0.0.0
-      - CHROMA_SERVER_HTTP_PORT=8000
-      - CHROMA_DB_IMPL=duckdb+parquet
-      - CHROMA_PERSIST_DIRECTORY=/chroma/chroma
-      - ANONYMIZED_TELEMETRY=False
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__LOG_LEVEL=INFO
+      - QDRANT__SERVICE__ENABLE_CORS=true
+      - QDRANT__SERVICE__HTTP_HOST=0.0.0.0
+      - QDRANT__SERVICE__GRPC_HOST=0.0.0.0
+      - QDRANT__TLS__ENABLED=false
     networks:
       - ai_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   # Langflow - Visual Flow Builder for LLMs
   langflow:
@@ -78,15 +88,20 @@ services:
       - LANGFLOW_LOG_LEVEL=INFO
       # Configure connections to other services
       - OLLAMA_BASE_URL=http://ollama:11434
-      - CHROMA_HOST=chromadb
-      - CHROMA_PORT=8000
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - QDRANT_GRPC_PORT=6334
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_USE_SSL=false
     networks:
       - ai_network
     depends_on:
       ollama:
         condition: service_healthy
-      chromadb:
+      qdrant:
         condition: service_started
+      # chromadb:
+      #   condition: service_started
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7860/health"]
       interval: 30s
@@ -127,9 +142,9 @@ networks:
 volumes:
   ollama_data:
     driver: local
-  chromadb_data:
-    driver: local
   langflow_data:
+    driver: local
+  qdrant_data:
     driver: local
   # postgres_data:
   #   driver: local

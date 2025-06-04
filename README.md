@@ -32,14 +32,14 @@ Everything together is a very useful "Swiss army knife" for your AI Learning pat
       curl http://host.docker.internal:11434/api/tags
       ```
 
-      ChromaDB
+      Qdrant
       ```bash
-      curl http://host.docker.internal:8000/api/v2/heartbeat
+      curl http://host.docker.internal:6333/dashboard
       ```
 
       Langflow
       ```bash
-      curl http://host.docker.internal:7860/health
+      curl http://host.docker.internal:7860
       ```
 
 
